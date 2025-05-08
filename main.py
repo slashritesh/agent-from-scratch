@@ -32,9 +32,7 @@ class ResponseModal(BaseModel):
 
 
 class QueryValidator(BaseModel):
-    type: Literal["context", "response"]
-    user_input: str
-
+    res :  str
 
 tool_schema = {
     "name": "add_expense",
@@ -77,8 +75,11 @@ assistant - "added expense sucessfully (tool calls - tool='add_expense',tool_par
 """
 
 
-messages = [{"role": "system", "content": system_prompt}, *st.session_state.messages]
-
+messages = [
+    {"role": "system", "content": system_prompt},
+    {"role":"user","content":"My name is Ritesh mane  Senior software engineer at brainfog"},
+    *st.session_state.messages
+]
 
 
 def get_response(input: str) -> ResponseModal:
@@ -96,7 +97,10 @@ def get_response(input: str) -> ResponseModal:
 def query_validator(input: str) -> QueryValidator:
     """Validate query"""
     messages = [
-        {"role": "system", "content": "Understand user query and decide weather you need more context or it need tool call response with item name and amount"},
+        {
+            "role": "system",
+            "content": "Understand user query and decide weather you need more context or it need tool call response with item name and amount",
+        },
         {"role": "user", "content": input},
     ]
     res = client.chat.completions.create(
@@ -116,7 +120,6 @@ if prompt := st.chat_input("Start Chatting"):
     with st.chat_message("user"):
         st.write(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
-
 
     with st.chat_message("assistant"):
         result = query_validator(prompt)
